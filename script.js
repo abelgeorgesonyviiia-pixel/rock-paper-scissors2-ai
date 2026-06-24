@@ -1,142 +1,150 @@
 let model;
 let webcam;
 let labelContainer;
-let maxPredictions;
+
 const computerChoices = [
-"Rock",
-"Paper",
-"Scissors"
-];
-async function init(){
-
-const URL="./";
-
-model = await tmImage.load(
-URL+"model.json",
-URL+"metadata.json"
-);
-
-maxPredictions = model.getTotalClasses();
-
-webcam = new tmImage.Webcam(
-350,
-350,
-true
-);
-
-await webcam.setup();
-
-await webcam.play();
-
-window.requestAnimationFrame(loop);
-
-document
-.getElementById("webcam-container")
-.appendChild(webcam.canvas);
-
-labelContainer =
-document.getElementById("label-container");
-
-}
-
-async function loop(){
-
-webcam.update();
-
-await predict();
-
-window.requestAnimationFrame(loop);
-
-}
-
-async function predict(){
-
-const prediction =
-await model.predict(webcam.canvas);
-
-let highest = 0;
-let player = "";
-
-for(let i=0;i<prediction.length;i++){
-
-if(
-prediction[i].probability > highest
-){
-
-highest =
-prediction[i].probability;
-
-player =
-prediction[i].className;
-
-}
-
-}
-
-if(highest < 0.90){
-
-labelContainer.innerHTML =
-
-"Show Rock, Paper or Scissors";
-
-return;
-
-}
-
-const computer =
-
-computerChoices[
-Math.floor(
-Math.random()*3
-)
+  "Rock",
+  "Paper",
+  "Scissors"
 ];
 
-let result="";
+async function init() {
 
-if(player===computer){
+  const URL = "./model/";
 
-result="🤝 Draw";
+  model = await tmImage.load(
+    URL + "model.json",
+    URL + "metadata.json"
+  );
+
+  webcam = new tmImage.Webcam(
+    350,
+    350,
+    true
+  );
+
+  await webcam.setup();
+
+  await webcam.play();
+
+  window.requestAnimationFrame(loop);
+
+  document.getElementById(
+    "webcam-container"
+  ).innerHTML = "";
+
+  document.getElementById(
+    "webcam-container"
+  ).appendChild(
+    webcam.canvas
+  );
+
+  labelContainer =
+    document.getElementById(
+      "label-container"
+    );
+}
+
+async function loop() {
+
+  webcam.update();
+
+  await predict();
+
+  window.requestAnimationFrame(loop);
 
 }
 
-else if(
+async function predict() {
 
-(player==="Rock" && computer==="Scissors")
+  const prediction =
+    await model.predict(
+      webcam.canvas
+    );
 
-||
+  let highest = 0;
 
-(player==="Paper" && computer==="Rock")
+  let player = "";
 
-||
+  for (
+    let i = 0;
+    i < prediction.length;
+    i++
+  ) {
 
-(player==="Scissors" && computer==="Paper")
+    if (
+      prediction[i].probability >
+      highest
+    ) {
 
-){
+      highest =
+      prediction[i].probability;
 
-result="🎉 You Win";
+      player =
+      prediction[i].className;
 
-}
+    }
 
-else{
+  }
 
-result="💻 Computer Wins";
+  if (highest < 0.90) {
 
-}
+    labelContainer.innerHTML =
+      "Show Rock, Paper or Scissors";
 
-labelContainer.innerHTML=
+    return;
 
-`
-<h2>You : ${player}</h2>
+  }
 
-<h2>Computer : ${computer}</h2>
+  const computer =
+    computerChoices[
+      Math.floor(
+        Math.random() * 3
+      )
+    ];
 
-<h1>${result}</h1>
-`;
+  let result = "";
 
-await new Promise(
+  if (player === computer) {
 
-r=>setTimeout(r,2000)
+    result = "🤝 Draw";
 
-);
+  }
 
+  else if (
+
+    (player === "Rock" &&
+     computer === "Scissors")
+
+    ||
+
+    (player === "Paper" &&
+     computer === "Rock")
+
+    ||
+
+    (player === "Scissors" &&
+     computer === "Paper")
+
+  ) {
+
+    result = "🎉 You Win";
+
+  }
+
+  else {
+
+    result = "💻 Computer Wins";
+
+  }
+
+  labelContainer.innerHTML = `
+
+  <h2>You : ${player}</h2>
+
+  <h2>Computer : ${computer}</h2>
+
+  <h1>${result}</h1>
+
+  `;
 }
