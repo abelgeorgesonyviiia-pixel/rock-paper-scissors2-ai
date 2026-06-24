@@ -2,13 +2,11 @@ let model;
 let webcam;
 let labelContainer;
 let maxPredictions;
-
 const computerChoices = [
 "Rock",
 "Paper",
 "Scissors"
 ];
-
 async function init(){
 
 const URL="./";
